@@ -1,0 +1,245 @@
+\documentclass[10pt]{article}
+
+\pdfoutput=1 
+\def\baselinestretch{1.06} 
+
+%\usepackage[math]{iwona}
+\usepackage[T1]{fontenc}
+
+\usepackage{amsmath,amssymb,amsfonts,mathrsfs,amsthm}
+%\usepackage{cmbright}
+\usepackage[inline]{showlabels} 
+\usepackage[]{graphicx}
+\usepackage{xcolor,dsfont}
+\definecolor{darkblue}{rgb}{0.1,0.1,.7}
+\usepackage[colorlinks, linkcolor=darkblue, citecolor=darkblue, urlcolor=darkblue, linktocpage]{hyperref} 
+\usepackage[square, comma, compress,numbers]{natbib}
+\usepackage{geometry}
+\geometry{letterpaper,tmargin=3.0cm,bmargin=3.0cm,lmargin=3.0cm,rmargin=3.0cm}
+\usepackage[margin=10pt,font=small,labelfont=bf]{caption}
+%\numberwithin{equation}{section}
+
+\usepackage{youngtab}
+
+%%%%%%%%%%%%% specific commands
+
+\theoremstyle{plain}
+\newtheorem*{lem}{Lemma}
+\newtheorem{lemnum}{Lemma}[section]
+\newtheorem*{fact}{Fact}
+\theoremstyle{remark}
+\newtheorem*{rem}{Remark}
+
+%\def\zcc{\mathbb{Z}_2^{\mathcal{C}}}
+\def\zb{\bar{z}}
+\def\Phib{\overline{\Phi}}
+\def\Wb{\overline{W}}
+\def\zcc{\mathcal{C}}
+\def\vol{\text{vol}(S^{d-1})}
+\def\bdelta{\widetilde{\boldsymbol{a}}}
+\def\bla{\boldsymbol{\lambda}}
+\def\bxi{\boldsymbol{\xi}}
+\def\Ricci{\mca{R}}
+\def\sU{\mathrm{U}}
+\def\ssU{\mathrm{SU}}
+\def\NN{\mathrm{N}}
+\def\SS{\mathrm{S}}
+\def\be{\mathbf{e}}
+\def\bm{\mathbf{m}}
+\def\lmax{{\l_\text{max}}}
+%% \def\vol{\text{vol}}
+\def\qaq{\quad \text{and} \quad}
+\def\qor{\quad \text{or} \quad}
+\def\dag{\dagger}
+\def\phs{{\phantom{*}}}
+\def\phd{{\phantom{\dagger}}}
+\def\wh{\widehat}
+\def\vphi{\varphi}
+\def\wt{\widetilde}
+\def\bzeta{\boldsymbol{\zeta}}
+\def\lra{\leftrightarrow}
+\def\La{\Lambda}
+\def\VV{\mathcal{V}}
+\def\SO{\mathrm{SO}}
+\def\Sd{\mathrm{S}_d}
+
+\newcommand{\sset}[2]{\left\{ \, #1 \mid #2 \, \right\}}
+\newcommand{\NO}[1]{{:\!#1\!:}}
+\newcommand{\norm}[1]{\lvert #1 \rvert}
+\newcommand{\ud}[2]{^{#1}_{\phantom{#1}#2}}
+\newcommand{\du}[2]{_{#1}^{\phantom{#1}#2}}
+
+\newcommand{\Orange}{\color [rgb]{1,.5,0}}
+\newcommand{\MH}[1]{}%{\Red\bf [MH: #1]}}  
+
+%% QM commands
+\newcommand{\ceil}[1]{\left \lceil #1 \right \rceil }
+\newcommand{\floor}[1]{\left \lfloor #1 \right \rfloor }
+\newcommand{\braket}[3]{\langle #1|#2|#3 \rangle}
+\newcommand{\brakket}[2]{\langle #1|#2\rangle}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle #1|}
+\newcommand{\expec}[1]{\langle #1 \rangle}
+
+\def\dps{\displaystyle}
+\def\ldef{\mathrel{\mathop:}=}
+\def\rdef{=\mathrel{\mathop:}}
+\newcommand{\limu}[1]{\mathrel{\mathop{\sim}\limits_{\scriptstyle{#1}}}}
+
+%% structural TeX commands
+\def\fns{\footnotesize}
+\newcommand{\reef}[1]{(\ref{#1})}
+\def\beq{\begin{equation}} 
+\def\eeq{\end{equation}}
+\def\nn{\nonumber} 
+\def\bsub{\begin{subequations}}
+\def\esub{\end{subequations}}
+
+%% math styles
+\def\mbb{\mathbb}
+\def\mbf{\mathbf}
+\def\mca{\mathcal}
+\def\mfr{\mathfrak}
+\def\mrm{\mathrm}
+\def\msc{\mathscr}
+\def\mtt{\mathtt}
+\def\msf{\mathsf}
+
+%% math symbols
+% \def\vee{\, \mathrm{v}\, }
+\def\th{\tfrac{1}{2}}
+\def\half{\frac{1}{2}}
+\def\lab{\bar{\lambda}}
+\def\pd{\partial}
+\def\a{\alpha}
+\def\b{\beta}
+\def\g{\gamma}
+\def\dd{\delta}
+\def\ka{\kappa}
+\def\la{\lambda}
+\def\ga{\gamma}
+\def\ze{\zeta}
+\def\DD{\Delta}
+\def\Oo{\mathcal{O}}
+\def\sO{\mathrm{O}}
+\def\l{\ell} 
+\def\eps{\epsilon}
+\def\bz{\boldsymbol{\zeta}}
+\def\vareps{\varepsilon}
+\def\bn{\mathbf{n}}
+\def\unit{\mathds{1}} % needs dsfont package
+
+\def\ddn{\mathsf{d}_N}
+\def\OON{\mathrm{O}(N)}
+\def\ba{\boldsymbol{a}}
+\def\bla{\boldsymbol{\lambda}}
+\newcommand{\threej}[6]{ \begin{pmatrix} #1 & #2 & #3 \\ #4 & #5 & #6 \end{pmatrix}}
+
+\def\Red{\color [rgb]{0.9,0.1,0.1}}
+\def\Green{\color [rgb]{0.3,0.5,0.2}}
+\def\Blue{\color [rgb]{0.3,0.5,0.8}}
+\def\dim{\text{dim}}
+
+\setlength{\parskip}{0.1in}
+\hyphenpenalty=1000
+
+\begin{document}
+
+\title{$SO(3)$ singlets}
+\author{MJH}
+\date\today
+
+\maketitle
+
+In Hamiltonian truncation (or in other physics settings), we often work with tensor products of $SO(3)$ representations:
+\beq
+\label{eq:bas}
+\ket{\ell_1,m_1;\ldots;\ell_N,m_N} = \ket{\ell_1,m_1} \otimes \dotsm \otimes \ket{\ell_N,m_N}.
+\eeq
+We have in mind that such states correspond to $N$ \emph{different} particles, so e.g.\@ the state $\ket{0,0;1,-1}$ is different from $\ket{1,-1;0,0}$. It is often useful or even crucial to organize such states into irreps of $SO(3)$. That is to say that we want to construct tensors $T^{(\la)}(m_1,\ldots,m_N)$ such that
+\beq
+\ket{L,j}\!\rangle \ldef \sum_{m_i} T_L^{(j)}(m_1,\ldots,m_N) \ket{\l_1,m_1;\ldots,\l_N,m_N}
+\eeq
+transforms as the lowest-weight state of a spin-$L$ multiplet.\footnote{Notice that rotations only act within tensor products $[\ell_1] \otimes \dotsm \otimes [\ell_N]$. Hence we can consider the spins $(\ell_1,\ldots,\ell_N)$ to be fixed.}
+Recall that acting on a single-particle state $\ket{\l,m}$ we have
+\beq
+J_{-} \ket{\ell,m} = \gamma_{\ell,m} \ket{\ell,m-1}
+\qaq
+J_z \ket{\ell,m} = m \ket{\ell,m}
+\eeq
+with $\gamma_{\l,m} = \sqrt{(\ell+m)(\ell-m+1)}$. Hence the tensor $T^{(j)}_L$ should obey
+\bsub
+\label{eq:imp}
+\begin{align}
+&(m_1 + \ldots + m_N + L) \, T^{(j)}_L(m_i) = 0, \label{eq:ia}\\
+&\ga_{\l_1,m_1+1} \, T^{(j)}(m_1+1,m_2,\ldots,m_N) + \ldots + \ga_{\l_N,m_N+1}\, T^{(j)}_L(m_1,\ldots,m_{N-1},m_N+1) = 0. \label{eq:ib}
+\end{align}
+\esub
+The $j$ index labels different tensors, which can be normalized such that
+\beq
+\sum_{m_i} T^{(j)}(m_i) T^{(j')}(m_i) = \delta_{j,j'}.
+\eeq
+As a matter of principle these equations can be solved (they form a linear system), but this can be a rather long procedure. Instead we can form solutions constructively.
+
+For $N=2$, it is well-understood how to organize basis states of the form~\reef{eq:bas} into irreps, using the Clebsch-Gordan coefficients. If $\ell_1,\ell_2$ are given, then the respective two-particle states fall into irreps of the following spins:
+\beq
+[\ell_1] \otimes [\ell_2] = \sum_{j = |\ell_1 - \ell_2|}^{\ell_1 + \ell_2} [j]
+\eeq
+If $[L]$ is included in this tensor product, then
+\beq
+\ket{L}\!\rangle \ldef \sum_{m_1,m_2} \brakket{\ell_1,m_1;\ell_2,m_2}{L,-L} \, \ket{\ell_1,m_1;\ell_2,m_2},
+\eeq
+is the desired lowest-weight state. Recall that the CG coefficients by construction obey
+\bsub
+\begin{align}
+(m_1 + m_2 - M) \brakket{\l_1,m_1;\l_2,m_2}{L,M} &= 0,\label{eq:cga}\\
+  \ga_{L,M} \brakket{\l_1,m_1;\l_2,m_2}{L,M-1} &= \ga_{\l_1,m_1+1}\brakket{\l_1,m_1+1;\l_2,m_2}{L,M} \nn \\
+  &\qquad\qquad+ \ga_{\l_2,m_2+1}\brakket{\l_1,m_1;\l_2,m_2+1}{L,M}\label{eq:cgb}.
+\end{align}
+\esub
+When $M = -L$ the LHS of the last equation vanishes, as it should. 
+
+
+For $N\geq 3$ we can concatenate CG coefficients. For example, fix external spins $(\l_1,\l_2,\l_3)$ and let
+\beq
+T^{(j)}_L(m_i) \ldef \sum_{\mu = -j}^j \brakket{\l_1,m_1;\l_2,m_2}{j,\mu} \brakket{j,\mu;\l_3,m_3}{L,-L}.
+\eeq
+This tensor is non-zero provided that $\{\l_1,\l_2,j\}$ and $\{j,\l_3,L\}$ both obey the triangle inequality. We should check that the equations~\reef{eq:imp} are satisfied.
+Indeed
+\beq
+(m_1 + m_2)  T^{(j)}_L = \sum_\mu \mu  \brakket{\l_1,m_1;\l_2,m_2}{j,\mu} \brakket{j,\mu;\l_3,m_3}{L,-L} = -(m_3 + L) T^{(j)}_L
+\eeq
+after using Eq.~\reef{eq:cga} twice, hence~\reef{eq:ia} is satisfied. Likewise
+\begin{align*}
+  \ga_{\l_1,m_1+1} \, T^{(j)}_L(m_1+1,m_2,m_3) + (1 \lra 2) &= \sum_\mu \ga_{j,\mu+1} \brakket{\l_1,m_1;\l_2,m_2}{j,\mu} \brakket{j,\mu+1;\l_3,m_3}{L,-L}\\
+  &=- \ga_{\l_3,m_3+1}  \sum_\mu  \brakket{\l_1,m_1;\l_2,m_2}{j,\mu} \brakket{j,\mu;\l_3,m_3+1}{L,-L}\\
+  &= - \ga_{\l_3,m_3+1} T^{(j)}_L(m_1,m_2,m_3+1).
+\end{align*}
+We applied~\reef{eq:cgb} twice, and in the first line we shifted the summation index $\mu \mapsto \mu + 1$. Hence~\reef{eq:ib} is satisfied as well. Finally, we can check that the tensors with different values of $j$ are different:
+\begin{multline}
+  \sum_{m_i} T^{(j)}_L(m_i) T^{(j')}_L(m_i) = \sum_{\mu,\mu'} \sum_{m_1,m_2} \brakket{\l_1,m_1;\l_2,m_2}{j,\mu}\brakket{\l_1,m_1;\l_2,m_2}{j',\mu'}  \\
+  \times \sum_{m_3} \brakket{j,\mu;\l_3,m_3}{L,-L} \brakket{j',\mu';\l_3,m_3}{L,-L}.
+\end{multline}
+By orthogonality of the CG coefficients, the sum over $m_1,m_2$ evalues to $\delta_{j,j'} \delta_{\mu,\mu'}$ whence
+\beq
+\sum_{m_i} T^{(j)}_L(m_i) T^{(j')}_L(m_i) = \delta_{j,j'} \sum_{\mu,m_3}\brakket{j,\mu;\l_3,m_3}{L,-L} \brakket{j,\mu;\l_3,m_3}{L,-L} = \delta_{j,j'}.
+\eeq
+
+For $N \geq 4$ the same pattern applies. In complete generality we have
+\begin{multline}
+  T^{(j_1,\ldots,j_{N-2})}_L(m_1,\ldots,m_N) \ldef \sum_{\mu_i} \brakket{\l_1,m_1;\l_2,m_2}{j_1,\mu_1} \prod_{k=1}^{N-3} \brakket{j_k,\mu_k;\l_{k+2},m_{k+2}}{j_{k+1},\mu_{k+1}} \\
+  \times \brakket{j_{N-2},\mu_{N-2};\l_N,m_N}{L,-L}.
+\end{multline}
+which is non-vanishing if $\{\l_1,\l_2,j_1\}$, $\{j_{N-2},\l_N,L\}$ and all $\{j_k,\l_{k+2},j_{k+1}\}$ all obey the triangle inequality. 
+
+
+
+  { 
+\bibliographystyle{utphys}
+\bibliography{biblio}
+  }
+  
+\end{document}
+
+
+
