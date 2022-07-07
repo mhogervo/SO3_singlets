@@ -1,5 +1,5 @@
 import group_theory
-from sympy.physics.quantum.cg import CG as symCG
+
 
 # def testSpinList(spinAr):
 #     for l in spinAr:
@@ -180,6 +180,7 @@ def chainToCoef(spinChain,state,M=0,cd = {}):
         fullChain.append(state[0])
         fullChain.append(state[1])
         j_r, m_r = chainList.pop(0), state[0][1] + state[1][1]
+        if abs(m_r) > j_r: return 0
         fullChain.append((j_r,m_r))
         del mList[:2]
         
@@ -188,6 +189,7 @@ def chainToCoef(spinChain,state,M=0,cd = {}):
             l, j_r = chainList.pop(0), chainList.pop(0)
             m = mList.pop(0)
             m_r = m_l + m
+            if abs(m_r) > j_r: return 0
             fullChain.append((l,m))
             fullChain.append((j_r,m_r))
 
@@ -195,10 +197,6 @@ def chainToCoef(spinChain,state,M=0,cd = {}):
             l, m = chainList.pop(0), mList.pop(0)
             fullChain.append((l,m))
             fullChain.append((L,M))
-            
-        # chain is complete; let's see if any m's are out of bounds
-        for x in fullChain:
-            if abs(x[1]) > x[0]: return 0
 
         # now actually compute the value:
         x_1, x_2, x_r = fullChain[:3]
