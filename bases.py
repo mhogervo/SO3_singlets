@@ -4,6 +4,7 @@
 ###############################
 
 import group_theory
+from sympy import Matrix
 
 def Jz(state):
     return sum([s[1] for s in state])

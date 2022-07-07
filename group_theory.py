@@ -1,6 +1,7 @@
 #########################################################################################################
 ### This module contains purely SO(3) group-theoretical functions.
 #########################################################################################################
+from sympy.physics.quantum.cg import CG as symCG
 
 def triangleInEq(l1,l2,l3):
     ''' Test if {l1,l2,l3} obey the triangle inequality. '''
@@ -119,3 +120,34 @@ def checkMultiplicities(l_List):
         return True
     else:
         return False
+
+    
+def clebsch(s1,s2,s3, memoDict = {}):
+    '''
+    Return the Clebsch-Gordan symbol
+    < l_1 m_1; l_2 m_2 | l_3, m_3 >.
+    '''
+    try:
+        return memoDict[(s1,s2,s3)]
+    except KeyError:
+        l1,m1 = s1
+        l2,m2 = s2
+        l3,m3 = s3
+        # sanity check the input
+        # for l in [l1,l2,l3]: group_theory.testSpin(l)
+        # for m in [m1,m2,m3]:
+        #     if not isinstance(m,int): raise TypeError("{} is not an integer.".format(m))
+
+        # check if |m| > l for any of the columns
+        for x in [s1,s2,s3]:
+            if abs(x[1]) > x[0]:  return 0
+        
+        if m1+m2 == m3 and triangleInEq(l1,l2,l3):
+            # only non-trivial case
+            tp = symCG(l1,m1,l2,m2,l3,m3).doit()
+            memoDict[(s1,s2,s3)] = tp
+            return tp
+        else:
+        # invalid CG symbol
+            return 0
+        
