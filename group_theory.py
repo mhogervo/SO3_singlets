@@ -1,18 +1,17 @@
 #########################################################################################################
 ### This module contains purely SO(3) group-theoretical functions.
 #########################################################################################################
+
 from sympy.physics.quantum.cg import CG as symCG
 
 def triangleInEq(l1,l2,l3):
-    ''' Test if {l1,l2,l3} obey the triangle inequality. '''
+    '''Test if {l1,l2,l3} obey the triangle inequality. '''
     
     testSpin(l1,l2,l3)
     return abs(l1-l2) <= l3 <= l1+l2
 
 def testSpin(*l_list):
-    '''
-    Given an input {l_0,l_1,...}, test if all l_i are positive integers.
-    '''
+    '''Given an input {l_0,l_1,...}, test if all l_i are positive integers.'''
 
     for l in l_list:
         if not isinstance(l,int):
@@ -23,9 +22,7 @@ def testSpin(*l_list):
             pass
 
 def testSpinLabel(l,m):
-    '''
-    Given quantum numbers (l,m), see if they are appropriate SO(3) labels.
-    '''
+    '''Given quantum numbers (l,m), see if they are appropriate SO(3) labels.'''
     
     testSpin(l)
     if not isinstance(m,int):
@@ -40,33 +37,28 @@ def tensorProduct(l1,l2,symm=False):
     Returns a list of spins that appear in the tensor product [l_1] x [l_2].
     The flag symm=True returns the symmetrized tensor product.
     '''
-
     testSpin(l1,l2)
     if symm and l1==l2:
         return range(0,2*l1+1,2)
     else:
         return range(abs(l1-l2),l1+l2+1)
 
-def decomposeTensorProduct(l_tup):
+def decomposeTensorProduct(spinTup):
     '''
-    Compute the tensor product decomposition [l_1] x [l_2] x .... as a sum [n_0, n_1, ...] where n_j is the number of copies of [j].
+    Input: a tuple of spins (l1,...,ln).
+    Computes the tensor product decomposition [l_1] x [l_2] x .... as a sum [n_0, n_1, ...] where n_j is the number of copies of [j].
+    Only works for non-symmetrized tensor products.
     '''
-    
-    for l in l_tup: testSpin(l)
+    for l in spinTup: testSpin(l)
 
-    maxSpin = sum(l_tup)
+    maxSpin = sum(spinTup)
     empty = [0 for _ in range(0,maxSpin+1)]
     
     tp = empty.copy()
     tp[0] = 1
 
-    if isinstance(l_tup,list):
-        l_list = l_tup.copy()
-    elif isinstance(l_tup,tuple):
-        l_list = list(l_tup)
-    else:
-        raise TypeError
-    
+    l_list = list(spinTup)
+        
     while len(l_list) > 0:
         l_new = l_list.pop(0)
         nw = empty.copy()
@@ -91,34 +83,37 @@ def countDimensionSum(n_List):
     
     return sum([n_List[l]*dimRep(l) for l in range(0,l_max+1)])
 
-def countDimensionProduct(l_List):
+def countDimensionProduct(spinTup):
     '''
     Given a tensor product V = [l_0] x [l_1] x ..., return dim(V).
     ''' 
 
-    for l in l_List: testSpin(l)
+    for l in spinTup: testSpin(l)
 
     dimRep = lambda l : 2*l + 1
     
     tp = 1
-    for l in l_List: tp *= dimRep(l)
+    for l in spinTup: tp *= dimRep(l)
     return tp
 
-def checkMultiplicities(l_List):
+def checkMultiplicities(spinTup):
     '''
     Given a tensor product V = [l_0] x [l_1] x ..., compute dim(V) in two ways.
     Either directly, or by decomposing into irreps and taking the sum of 
     dimensions.
+    Works only for the unsymmetrized tensor product.
     '''
 
-    dec = decomposeTensorProduct(l_List)
+    dec = decomposeTensorProduct(spinTup)
     dim1 = countDimensionSum(dec)
-    dim2 = countDimensionProduct(l_List)
+    
+    dim2 = countDimensionProduct(spinTup)
     
     if dim1 == dim2:
         print("The tensor product has dim(V) = {}.".format(dim1))
         return True
     else:
+        print("Mismatch!")
         return False
 
     
@@ -126,6 +121,8 @@ def clebsch(s1,s2,s3, memoDict = {}):
     '''
     Return the Clebsch-Gordan symbol
     < l_1 m_1; l_2 m_2 | l_3, m_3 >.
+    The entries are two-tuples: si = (li,mi).
+    Can use a dictionary memoDict to store results, since this is costly.
     '''
     try:
         return memoDict[(s1,s2,s3)]
@@ -133,10 +130,11 @@ def clebsch(s1,s2,s3, memoDict = {}):
         l1,m1 = s1
         l2,m2 = s2
         l3,m3 = s3
+        
         # sanity check the input
-        # for l in [l1,l2,l3]: group_theory.testSpin(l)
-        # for m in [m1,m2,m3]:
-        #     if not isinstance(m,int): raise TypeError("{} is not an integer.".format(m))
+        testSpin(l1,l2,l3)
+        for m in [m1,m2,m3]:
+            if not isinstance(m,int): raise TypeError("{} is not an integer.".format(m))
 
         # check if |m| > l for any of the columns
         for x in [s1,s2,s3]:
