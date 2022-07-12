@@ -6,23 +6,28 @@
 ##
 #######################################
 
+#from itertools import permutations
 from group_theory import testSpin
-from sympy import ImmutableSparseMatrix
+from sympy import ImmutableSparseMatrix, sqrt, diag, eye, factorial
 
 def genAllData(spinTup,M=0):
     '''
     Return all information about a basis, both symmetrized and non-symmetrized.
     '''
-    
+
+    print("raw")
     rawBasis, rawLookup = spinBasis(spinTup,M,False)
-    rawDec = decomposeBasis(spinTup,False)
-    
+    #rawDec = decomposeBasis(spinTup,False)
+    print("symm")
     symBasis, symLookup = spinBasis(spinTup,M,True)
     symDec = decomposeBasis(spinTup,True)
-    
+    print("norms")
+    symNorms = tuple(map(normOfState2,symBasis))
+    sqrtOfGram = ImmutableSparseMatrix(diag(*tuple(map(sqrt,symNorms))))
+    print("proj")
     mat = symmProjector(rawLookup, symLookup)
     
-    return [[rawBasis, rawLookup, rawDec],[symBasis,symLookup,symDec],mat]
+    return [rawBasis, [symBasis,symLookup,symDec,sqrtOfGram],mat.transpose()]
     
 def spinBasis(spinTup,M=0,symm=False):
     '''
@@ -44,6 +49,25 @@ def spinBasis(spinTup,M=0,symm=False):
 
     return out, lookUp
 
+# def normOfState(state):
+#     '''Compute the norm of a state.'''
+#     perms, ct = permutations(state), 0
+#     for x in perms:
+#         if x == state: ct += 1
+#     return ct
+
+def normOfState(state):
+    '''Compute the norm of a state.'''
+    nd = {}
+    for x in state:
+        nd[x] = nd.get(x,0) + 1
+    nd = [factorial(n) for n in nd.values()]
+    
+    out = 1
+    while nd: out *= nd.pop()
+    return out
+
+        
 def fullBasis(spinTup,symm=False):
     '''
     Given a tuple of spins (l1,...,ln), return all states in the tensor product.
@@ -60,7 +84,7 @@ def fullBasis(spinTup,symm=False):
         l = spinList.pop(0)
         out = [ [x] for x in rep(l) ]
         
-        while len(spinList) > 0:
+        while spinList:
             l = spinList.pop(0)
             outNw = [ state + [x] for state in out for x in rep(l) ]
             if symm:
@@ -106,7 +130,7 @@ def decomposeBasis(spinTup,symm=False):
         if m >= 0: mVec[m] += 1
         
     multVec = []
-    while len(mVec) > 0:
+    while mVec:
         n = mVec.pop()
         if n < 0:
             raise ValueError("Not a complete basis; one of the multiplicities became negative.")
@@ -115,6 +139,63 @@ def decomposeBasis(spinTup,symm=False):
         
     return { l : multVec[l] for l in range(0,l_max+1) if multVec[l] != 0 } 
 
+def casimirMatrix(spinTup,M=0,symm=False):
+    '''
+    For a given sector (symmetrized or not), return the action of the Casimir.
+    The eigenvalues should be of the form j*(j+1) with integer j.
+    '''
+    
+    l_max = sum(spinTup)
+    if abs(M) > l_max: return ImmutableSparseMatrix(0,0,{})
+        
+    normBas, normLookup = spinBasis(spinTup,M,symm)
+    lowerBas, lowerLookup = spinBasis(spinTup,M-1,symm)
+
+    gammaPlus = lambda l,m : sqrt((l-m)*(l+m+1))
+    gammaMin = lambda l,m : sqrt((l+m)*(l-m+1))
+    
+    numNorm, numLower = len(normBas), len(lowerBas)
+
+    diagPart = M*(M-1)*ImmutableSparseMatrix(eye(numNorm))
+    if M == -l_max: return diagPart
+        
+    lowerDict = {}
+    for state in normBas:
+        i = normLookup[state]
+        for k in range(0,len(state)):
+            tp = list(state)
+            l,m = tp[k]
+            if m > -l:
+                tp[k] = (l,m-1)
+                if symm: tp = tuple(sorted(tp))
+                else: tp = tuple(tp)
+                j = lowerLookup[tp]
+                lowerDict[(j,i)] = lowerDict.get((j,i),0) + gammaMin(l,m)
+    lowerMat = ImmutableSparseMatrix(numLower,numNorm,lowerDict)
+
+    upperDict = {}
+    for state in lowerBas:
+        i = lowerLookup[state]
+        for k in range(0,len(state)):
+            tp = list(state)
+            l,m = tp[k]
+            if m < l:
+                tp[k] = (l,m+1)
+                if symm: tp = tuple(sorted(tp))
+                else: tp = tuple(tp)
+                j = normLookup[tp]
+                upperDict[(j,i)] = upperDict.get((j,i),0) + gammaPlus(l,m)
+    upperMat = ImmutableSparseMatrix(numNorm,numLower,upperDict)
+
+    #print(upperMat.transpose() == lowerMat)
+    
+    return upperMat*lowerMat + diagPart
+    
+def bruteForce(casMatrix,L=0):
+    '''Given a Casimir matrix, find all states with eigenvalue L(L+1).''' 
+    nr = casMatrix.rows
+    mat = ImmutableSparseMatrix(casMatrix - L*(L+1)*eye(nr))
+    return mat.nullspace()
 
 #################################################################################################################################
 #################################################################################################################################
