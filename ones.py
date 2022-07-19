@@ -1,31 +1,45 @@
 from bases import fullBasis, normOfState
 from sympy import sqrt, diag, eye, ImmutableSparseMatrix
 
-def computeOnes(factors):
-    spinTup = tuple([1 for _ in range(factors)])
+def listToLookup(l):
+    '''
+    Given a list (or tuple, or even a set) l, return a lookup table in the form of a dict.
+    '''
+    lookup = {}
+    for n, x in enumerate(l):
+        lookup[x] = n
+    return lookup
+        
+def computeOnes(N):
+    '''
+    This program computes irreducible representations living in the symmetrized tensor product
+    of N copies of the 1 representation.
+    '''
+    spinTup = tuple([1 for _ in range(N)])
     allStates = tuple(fullBasis(spinTup,True))
-    mRange = range(-factors,factors+1)
+    mRange = range(-N,N+1)
 
     spinStates = {}
     sqrtGram = {}
-    
+
+    # Split the full Hilbert space into states with magnetic quantum number Jz = M,
+    # with M running from -N, ..., N. For every M, compute the
+    # list of states, a lookup table and the Gram matrix.
     Jz = lambda state : sum([x[1] for x in state])
     for M in mRange:
         projState = lambda state : Jz(state) == M
         spinning = tuple(filter(projState,allStates))
-        lookup = {}
-        for n, st in enumerate(spinning):
-            lookup[st] = n
-        spinStates[M] = spinning, lookup
+
+        spinStates[M] = spinning, listToLookup(spinning) 
+
         norms = [sqrt(normOfState(st)) for st in spinning]
         sqrtGram[M] = ImmutableSparseMatrix(diag(*norms))
 
-
+    # Compute the matrices J+ and J-. They are _rectangular_, not square.
     Jmin, Jplus = {}, {}
     
-    nmin = len(spinStates[-factors][0])
-    Jmin[-factors] = ImmutableSparseMatrix(0,nmin,{})
-    for M in range(-factors+1,factors+1):            
+    Jmin[-N] = ImmutableSparseMatrix(0,1,{})
+    for M in range(-N+1,N+1):            
         normBas, normLookup = spinStates[M]
         _, lowerLookup = spinStates[M-1]
         gammaMin = lambda l,m : sqrt((l+m)*(l-m+1))
@@ -45,9 +59,9 @@ def computeOnes(factors):
         # appropriate normalization
         sqg0, sqgmn = sqrtGram[M], sqrtGram[M-1]
         Jmin[M] = sqgmn * Jmin[M] * sqg0**(-1)
-        
-    # don't need Jplus for the top state:
-    for M in range(-factors,factors):            
+
+    #Jmax[N] = ImmutableSparseMatrix(0,1,{})
+    for M in range(-N,N):            
         normBas, normLookup = spinStates[M]
         _, upperLookup = spinStates[M+1]
         gammaPlus = lambda l,m : sqrt((l-m)*(l+m+1))
@@ -67,15 +81,20 @@ def computeOnes(factors):
         # appropriate normalization
         sqg0, sqgpl = sqrtGram[M], sqrtGram[M+1]
         Jplus[M] = sqgpl * Jplus[M] * sqg0**(-1)
-    
-    irrepRange = range(factors,-1,-2)
+
+    # the spins that appear in the tensor product:
+    irrepRange = tuple(range(N,-1,-2).__reversed__())
     #print(irrepRange)
     irr = {}
     for L in irrepRange:
-        #print("Working on spin {}".format(L))
+        # generate all irreps starting from the lowest-weight state, moving up using J+
         M = -L
-        #print(Jmin[-L])
-        tp = Jmin[M].nullspace()[0]
+        # there will be a unique state with Jz = -L annihilated by J-,
+        # and it's the bottom rung of the spin-L multiplet.
+        nulls = Jmin[M].nullspace()
+        if len(nulls) != 1:
+            print("Kernel of J- has the wrong dimension.")
+        tp = nulls[0]
         tp /= tp.norm()
         irr[(L,M)] = tp
         # generate the other states in the multiplet
@@ -86,73 +105,17 @@ def computeOnes(factors):
             tp /= tp.norm()
             irr[(L,M)] = tp
 
-    return spinStates, list(irrepRange), irr
+    return spinStates, irrepRange, irr
 
 
 ############## main file
 
-max = 20
-outAr = {}
-for f in range(0,max+1):
-    print("f = {}".format(f))
-    outAr[f] = computeOnes(f)
+# max = 20
+# outAr = {}
+# for f in range(0,max+1):
+#     print("f = {}".format(f))
+#     outAr[f] = computeOnes(f)
 
 
 
 
-
-
-
-        # print("Casimir?")
-        # norms = []
-        # for M in range(-L,L+1):
-        #     ns = len(spinStates[M][0])
-        #     shiftedCasimir = Cas[M] - L*(L+1)*eye(ns)
-        #     tp = shiftedCasimir*goodStates[(L,M)]
-        #     norms.append(tp.norm())
-        # print(norms)
-    
-        
-#print(goodStates)
-
-#print([(M,Cas[M].eigenvals()) for M in mRange])
-
-
-# print("Checking commutation relations:")
-# for M in mRange:
-#     ns = len(spinStates[M][0])
-    
-#     if M > -factors:
-#         ft =  Jplus[M-1] * Jmin[M]
-#     else:
-#         ft = ImmutableSparseMatrix(ns,ns,{})
-#     if M < factors:
-#         st =  Jmin[M+1] * Jplus[M]
-#     else:
-#         st = ImmutableSparseMatrix(ns,ns,{})
-#     diff = ft - st - 2*M*eye(ns)
-#     if diff.norm() != 0:
-#         print("Commutation relations are violated.")
-# print("Done.")        
-
-  
-    # Jplus[factors] = ImmutableSparseMatrix(0,len(spinStates[factors][0]),{})   
-
-    #change basis to make the states orthonormal
-    #for M in mRange:
-        
-   #     if M < factors:
-            
-            
-        # if M > -factors:
-        #     
-        #     
-
-    # for M in mRange:
-    #     #print(M)
-    #     ns = len(spinStates[M][0])
-    #     if M == -factors:
-    #         cm = M*(M-1)*eye(ns)
-    #     else:
-    #         cm = Jplus[M-1]*Jmin[M] + M*(M-1)*eye(ns)
-    #     Cas[M] = cm
